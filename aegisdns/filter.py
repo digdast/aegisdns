@@ -10,7 +10,7 @@ import time
 import asyncio
 import logging
 import httpx
-from typing import Dict, Set, Tuple, List, Optional
+from typing import Dict, Set, Tuple, List, Optional, Any
 from pathlib import Path
 from aegisdns.config import BLOCKLIST_CACHE_DIR, SAFESEARCH_MAPPINGS
 from aegisdns.database import Database

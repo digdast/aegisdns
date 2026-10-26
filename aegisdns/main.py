@@ -374,7 +374,7 @@ async def websocket_live_stream(websocket: WebSocket):
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_dashboard(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "app_name": "AegisDNS"})
+    return templates.TemplateResponse(request=request, name="index.html", context={"app_name": "AegisDNS"})
 
 def start():
     """CLI Entry point."""
