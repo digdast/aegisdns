@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  aegisdns:
+    build: .
+    container_name: aegisdns
+    restart: unless-stopped
+    ports:
+      # Standard DNS over UDP and TCP
+      - "53:53/udp"
+      - "53:53/tcp"
+      # Web UI & RFC 8484 DoH Endpoint
+      - "5380:5380/tcp"
+    volumes:
+      # Persist SQLite database, custom rules, and blocklist cache
+      - ./data:/app/data
+    environment:
+      - AEGIS_DNS_HOST=0.0.0.0
+      - AEGIS_DNS_PORT=53
+      - AEGIS_HTTP_HOST=0.0.0.0
+      - AEGIS_HTTP_PORT=5380
+      - AEGIS_RESOLUTION_MODE=RECURSIVE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5380/api/stats"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
