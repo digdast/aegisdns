@@ -114,34 +114,36 @@ sudo ./run.sh
 
 ```mermaid
 graph TD
-    Client[LAN Client / Browser / Mobile] -->|UDP / TCP Port 53| UDPListener[AegisDNS Listener]
-    Client -->|HTTPS Port 5380 /dns-query| DoHHandler[RFC 8484 DoH Handler]
+    Client["LAN Client / Browser / Mobile"] -->|"UDP / TCP Port 53"| UDPListener["AegisDNS Listener (:53)"]
+    Client -->|"HTTPS Port 5380 (/dns-query)"| DoHHandler["RFC 8484 DoH Handler"]
     
-    UDPListener --> CoreResolver[AegisDNS Core Resolver]
+    UDPListener --> CoreResolver["AegisDNS Core Resolver Engine"]
     DoHHandler --> CoreResolver
     
-    CoreResolver --> LocalDNS[Local DNS Table]
-    LocalDNS -->|Match: *.home.lab| Answer[Resolved Answer]
+    CoreResolver --> LocalDNS["Homelab Local DNS Records"]
+    LocalDNS -->|"Match: *.home.lab"| Answer["DNS Answer Payload"]
     
-    CoreResolver --> FilterEngine[In-Memory Threat & Ad Filter]
-    FilterEngine -->|Blocked: Malware / Ad| Sinkhole[0.0.0.0 / NXDOMAIN Sinkhole]
+    CoreResolver --> FilterEngine["In-Memory Threat & Ad Filter"]
+    FilterEngine -->|"Blocked: Threat / Ad"| Sinkhole["0.0.0.0 / NXDOMAIN Sinkhole"]
     
-    CoreResolver --> MemoryCache[In-Memory TTL Cache]
-    MemoryCache -->|Cache Hit| Answer
+    CoreResolver --> MemoryCache["In-Memory TTL Adaptive Cache"]
+    MemoryCache -->|"Cache Hit (sub-0.5ms)"| Answer
     
-    CoreResolver --> UpstreamRouter{Resolution Mode}
-    UpstreamRouter -->|Mode: RECURSIVE| RootHints[ICANN Root Servers [a-m]]
-    UpstreamRouter -->|Mode: DOH_QUAD9| Quad9[Quad9 Encrypted DoH]
-    UpstreamRouter -->|Mode: UNBOUND| LocalUnbound[Local Unbound 127.0.0.1:5335]
+    CoreResolver --> UpstreamRouter{"Resolution Mode"}
+    UpstreamRouter -->|"Iterative Recursion"| RootHints["ICANN Root Servers (a-m)"]
+    UpstreamRouter -->|"Encrypted Upstream"| Quad9["Quad9 DoH Upstream"]
+    UpstreamRouter -->|"Local Daemon"| LocalUnbound["Unbound Daemon (127.0.0.1:5335)"]
     
-    RootHints --> TLD[TLD Nameservers] --> Authoritative[Authoritative NS] --> Answer
+    RootHints --> TLD["TLD Nameservers"]
+    TLD --> Authoritative["Authoritative Nameservers"]
+    Authoritative --> Answer
     Quad9 --> Answer
     LocalUnbound --> Answer
     
-    CoreResolver --> AsyncWorker[Async SQLite WAL Worker]
-    AsyncWorker --> Database[(aegisdns.db)]
-    AsyncWorker --> WebSocketStream[Live WebSocket Stream]
-    WebSocketStream --> WebUI[Glassmorphic Dashboard :5380]
+    CoreResolver --> AsyncWorker["Asynchronous SQLite WAL Worker"]
+    AsyncWorker --> Database[("aegisdns.db")]
+    AsyncWorker --> WebSocketStream["Live WebSocket Stream"]
+    WebSocketStream --> WebUI["Cyber Command Dashboard (:5380)"]
 ```
 
 ---
