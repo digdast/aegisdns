@@ -1,34 +1,73 @@
 <div align="center">
 
 # 🛡️ AegisDNS
-### Next-Gen Recursive Resolver, RFC 8484 DoH Sinkhole & Cyber Defense Command Center
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Framework-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![DNS](https://img.shields.io/badge/DNS-RFC%201035%20%7C%20RFC%208484%20DoH-06b6d4.svg)](https://datatracker.ietf.org/doc/html/rfc8484)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)](https://docker.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+### Next-Gen Recursive Resolver, RFC 8484 DoH Sinkhole & Cyber Defense Command Center
+**Direct ICANN Root Nameserver Traversal, Encrypted DNS-over-HTTPS (DoH), Real-Time Threat Intelligence Sinkholing, and SafeSearch Enforcement.**
 
 <p align="center">
-  <b>A modern, high-performance alternative to Pi-hole and AdGuard Home.</b><br>
-  Featuring pure iterative root recursion, encrypted DNS-over-HTTPS (DoH), real-time threat intelligence sinkholing, SafeSearch enforcement, and an executive dark glassmorphic cybersecurity command center.
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-Framework-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/DNS-RFC%201035%20%7C%208484%20DoH-06B6D4?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" />
 </p>
-
-[Features](#-key-features) • [Comparison Matrix](#-feature-comparison) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Configuration](#-client-setup) • [API Reference](#-rest-api)
-
----
 
 </div>
 
+---
+
+## 📸 Production Preview
+
+*High-Availability DNS cluster command center: multi-node query telemetry, active sinkhole block rates, and live query stream.*
+
+![AegisDNS Sinkhole](docs/screenshots/pihole-cluster-dns.png)
+
+---
+
 ## 🌟 Overview
 
-**AegisDNS** was engineered to solve the design and architectural limitations of legacy DNS sinkholes. Rather than relying on rigid upstream forwarders or outdated web interfaces, AegisDNS combines:
+**AegisDNS** solves the structural limitations of legacy ad-blockers and DNS forwarders:
 
-1. **Pure Iterative Root Recursion**: Directly queries the 13 ICANN root nameserver clusters (`[a-m].root-servers.net`) and traverses TLDs down to authoritative nameservers—preventing upstream ISP and commercial DNS tracking.
+1. **Pure Iterative Root Recursion**: Directly queries the 13 ICANN root nameserver clusters (`[a-m].root-servers.net`) and traverses down to authoritative TLD nameservers—preventing upstream ISP and commercial DNS tracking.
 2. **Encrypted DNS-over-HTTPS (DoH)**: Full compliance with RFC 8484 (`/dns-query` binary wire format) and RFC 8427 JSON DoH for secure, encrypted resolution on mobile, browsers, and remote devices.
 3. **Multi-Stage Threat Sinkhole**: High-velocity in-memory O(1) domain set lookups, suffix trie matching, regex evaluation, and automated threat feeds (StevenBlack, URLhaus malware C2, OISD, Phishing Army).
-4. **Executive Cyber Command Center**: A stunning, real-time glassmorphic dark dashboard with WebSocket telemetry streams, 24-hour traffic analytics, 1-click domain quick-actions, and an interactive domain auditor.
+4. **Cyber Command Center**: A real-time glassmorphic dark dashboard with WebSocket telemetry streams, 24-hour traffic analytics, 1-click domain quick-actions, and an interactive domain auditor.
+
+---
+
+## 🏗️ Hierarchical Resolution Flow
+
+```mermaid
+flowchart TD
+    subgraph Clients ["📱 Client Devices"]
+        Dev["Browser / OS / Router"]
+    end
+
+    subgraph AegisEngine ["🛡️ AegisDNS Core Engine"]
+        Sinkhole["Threat Sinkhole Filter\n(O(1) Set + Suffix Trie)"]
+        Cache["TTL-Aware Memory Cache\n(<0.5ms Response)"]
+        Resolver["Iterative Root Resolver"]
+    end
+
+    subgraph Hierarchy ["🌐 Global DNS Hierarchy"]
+        Root["13 ICANN Root Nameservers\n([a-m].root-servers.net)"]
+        TLD["TLD Authoritative Nameservers\n(.com, .org, .net, etc.)"]
+        Auth["Domain Authoritative Nameserver\n(Cloudflare, Route53, etc.)"]
+    end
+
+    Dev -->|Port 53 UDP/TCP or /dns-query DoH| Sinkhole
+    Sinkhole -->|Blocked Threat / Ad| Blackhole["0.0.0.0 Sinkhole"]
+    Sinkhole -->|Clean Query| Cache
+    Cache -->|Cache Hit| Dev
+    Cache -->|Cache Miss| Resolver
+
+    Resolver -->|Step 1: Root Hints| Root
+    Root -->|Referral| TLD
+    TLD -->|Referral| Auth
+    Auth -->|Authoritative Answer| Resolver
+    Resolver --> Cache
+```
 
 ---
 
@@ -42,7 +81,6 @@
 - **🌐 Homelab Local DNS Overrides**: Custom `A`, `AAAA`, `CNAME`, and `TXT` record management for local services (`*.home.lab`, `*.local`, etc.).
 - **🔐 SafeSearch Enforcement**: 1-click network-wide strict SafeSearch redirection for Google, YouTube, Bing, and DuckDuckGo.
 - **📊 Real-Time WebSocket Telemetry**: Streaming live query feed with instant 1-click **Quick Whitelist** and **Quick Block** actions.
-- **💾 Asynchronous SQLite WAL Storage**: Zero DNS latency impact—queries are buffered in memory and flushed via background worker tasks.
 
 ---
 
@@ -54,156 +92,45 @@
 | **Encrypted DoH Endpoint (RFC 8484)** | ✅ Native | ❌ Plugin Needed | ✅ Native | ✅ Native |
 | **Executive Glassmorphism UI** | ✅ Modern Cyber | ❌ Classic Admin | ⚠️ Minimalist | ❌ Classic ASP.NET |
 | **Real-Time WebSocket Stream** | ✅ Built-in | ❌ Polling/Tail | ⚠️ Polling | ⚠️ Polling |
-| **1-Click Quick Allow/Block in Stream**| ✅ Instant | ⚠️ Multi-step | ⚠️ Multi-step | ❌ Manual |
-| **Interactive Domain Threat Auditor** | ✅ Built-in | ❌ CLI Only | ⚠️ Basic Query | ⚠️ Basic Test |
+| **1-Click Quick Allow/Block** | ✅ Instant | ⚠️ Multi-step | ⚠️ Multi-step | ❌ Manual |
+| **Domain Threat Auditor** | ✅ Built-in | ❌ CLI Only | ⚠️ Basic Query | ⚠️ Basic Test |
 | **SafeSearch Interception** | ✅ Built-in | ❌ Complex Regex | ✅ Built-in | ⚠️ Plugin |
 | **Homelab Local DNS Records** | ✅ Built-in | ✅ Built-in | ✅ Built-in | ✅ Built-in |
-| **Memory Footprint** | **~45 MB** | ~35 MB | ~60 MB | ~120 MB |
 
 ---
 
-## 🚀 Quick Start
+## 🛠️ Quickstart
 
-### Option 1: Docker & Docker Compose (Recommended)
+### Local Workstation (Windows, Linux, macOS)
+```bash
+git clone https://github.com/ertechlab/aegisdns.git
+cd aegisdns
+pip install -r requirements.txt
+python -m aegisdns.server --port 53 --http-port 8053
+```
+Open **http://localhost:8053** in your browser.
+
+### Docker Compose
+```yaml
+version: "3.8"
+services:
+  aegisdns:
+    image: aegisdns:latest
+    container_name: aegisdns
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "8053:8053/tcp"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+```
 
 ```bash
-# Clone the repository
-git clone https://github.com/digdast/aegisdns.git
-cd aegisdns
-
-# Start AegisDNS with Docker Compose
-docker-compose up -d
+docker compose up -d
 ```
-
-Open your browser to:
-- **Cyber Command Dashboard**: [http://localhost:5380](http://localhost:5380)
-- **DoH RFC 8484 Endpoint**: `http://localhost:5380/dns-query`
-
----
-
-### Option 2: Windows 1-Click Launch
-
-1. Clone or download the repository to your Windows machine.
-2. Double-click **`run.bat`** (or execute in PowerShell as Administrator):
-   ```powershell
-   cd C:\scripts\aegisdns
-   .\run.bat
-   ```
-3. AegisDNS will install dependencies and immediately bind to **Port 53 (UDP/TCP)** and launch the web interface on **Port 5380**.
-
----
-
-### Option 3: Linux / macOS Standalone
-
-```bash
-git clone https://github.com/digdast/aegisdns.git
-cd aegisdns
-
-# Install dependencies
-pip3 install -r requirements.txt
-
-# Run with root privileges to bind Port 53
-sudo ./run.sh
-```
-
-*(Tip: To run without root, grant Python permission to bind privileged ports: `sudo setcap 'cap_net_bind_service=+ep' $(which python3)`).*
-
----
-
-## 🏛️ Architecture
-
-```mermaid
-graph TD
-    Client["LAN Client / Browser / Mobile"] -->|"UDP / TCP Port 53"| UDPListener["AegisDNS Listener (:53)"]
-    Client -->|"HTTPS Port 5380 (/dns-query)"| DoHHandler["RFC 8484 DoH Handler"]
-    
-    UDPListener --> CoreResolver["AegisDNS Core Resolver Engine"]
-    DoHHandler --> CoreResolver
-    
-    CoreResolver --> LocalDNS["Homelab Local DNS Records"]
-    LocalDNS -->|"Match: *.home.lab"| Answer["DNS Answer Payload"]
-    
-    CoreResolver --> FilterEngine["In-Memory Threat & Ad Filter"]
-    FilterEngine -->|"Blocked: Threat / Ad"| Sinkhole["0.0.0.0 / NXDOMAIN Sinkhole"]
-    
-    CoreResolver --> MemoryCache["In-Memory TTL Adaptive Cache"]
-    MemoryCache -->|"Cache Hit (sub-0.5ms)"| Answer
-    
-    CoreResolver --> UpstreamRouter{"Resolution Mode"}
-    UpstreamRouter -->|"Iterative Recursion"| RootHints["ICANN Root Servers (a-m)"]
-    UpstreamRouter -->|"Encrypted Upstream"| Quad9["Quad9 DoH Upstream"]
-    UpstreamRouter -->|"Local Daemon"| LocalUnbound["Unbound Daemon (127.0.0.1:5335)"]
-    
-    RootHints --> TLD["TLD Nameservers"]
-    TLD --> Authoritative["Authoritative Nameservers"]
-    Authoritative --> Answer
-    Quad9 --> Answer
-    LocalUnbound --> Answer
-    
-    CoreResolver --> AsyncWorker["Asynchronous SQLite WAL Worker"]
-    AsyncWorker --> Database[("aegisdns.db")]
-    AsyncWorker --> WebSocketStream["Live WebSocket Stream"]
-    WebSocketStream --> WebUI["Cyber Command Dashboard (:5380)"]
-```
-
----
-
-## 📱 Client Setup Guide
-
-### 1. Router DHCP (Network-Wide Protection)
-Set your router's Primary DNS server IP to your AegisDNS host IP (e.g., `192.168.0.x`). All devices on your network will automatically be protected without installing software on clients!
-
-### 2. Windows 11 (Encrypted DNS-over-HTTPS)
-1. Open **Settings** > **Network & Internet** > **Ethernet / Wi-Fi**.
-2. Click **Edit** next to DNS server assignment.
-3. Select **Manual** > Turn on **IPv4**.
-4. Set Preferred DNS: `Your-AegisDNS-Host-IP`.
-5. Set DNS over HTTPS: **On (automatic template)** or specify `https://your-domain.com:5380/dns-query`.
-
-### 3. Apple iOS / macOS
-Deploy a mobile configuration profile pointing to your AegisDNS DoH URL (`https://your-domain.com/dns-query`), or configure via native profiles.
-
-### 4. Google Chrome / Mozilla Firefox / Brave
-1. Go to **Settings** > **Privacy and Security** > **Security**.
-2. Enable **Use Secure DNS**.
-3. Select **Custom** and enter:
-   ```text
-   http://127.0.0.1:5380/dns-query
-   ```
-
----
-
-## 📡 REST API Reference
-
-AegisDNS features a full REST API for programmatic telemetry, rule orchestration, and monitoring.
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/stats` | Real-time overview KPIs, 24h timeline graph, and top lists |
-| `GET` | `/api/queries` | Paginated query log with search and status filters (`ALL`, `BLOCKED`, `MALWARE`, `ALLOWED`) |
-| `POST`| `/api/quick-action` | 1-click whitelist or blacklist directly from query records |
-| `POST`| `/api/audit-domain` | Test any domain against security filters and trace recursive resolution |
-| `GET` | `/api/blocklists` | List all configured threat and ad blocklist feeds |
-| `POST`| `/api/blocklists/update`| Trigger background re-download and parsing of all feeds |
-| `GET` | `/api/local-dns` | Retrieve custom local DNS overrides |
-| `POST`| `/api/local-dns` | Add new custom `A`, `AAAA`, `CNAME`, or `TXT` record |
-| `GET` | `/api/settings` | Get current resolver and defense configuration |
-| `POST`| `/api/settings` | Update resolution mode, SafeSearch, or blocking modes |
-| `WS`  | `/ws/live` | Real-time WebSocket stream of inbound DNS queries |
-
----
-
-## 🛡️ Default Curated Threat Feeds
-
-AegisDNS automatically ingests, deduplicates, and optimizes the following threat feeds:
-- **StevenBlack Unified Hosts**: The gold standard community consolidation for adware, malware, and telemetry.
-- **URLhaus Malicious Hosts (abuse.ch)**: Real-time malware distribution sites and ransomware command-and-control servers.
-- **OISD Big Filter**: High-performance ad and tracker filter engineered for zero false positives.
-- **Phishing Army**: Actively verified zero-hour phishing and credential harvesting hosts.
 
 ---
 
 ## 📄 License
-
-Licensed under the **MIT License**. Free for homelab, personal, and enterprise deployment.
-Contributed with ❤️ by [digdast](https://github.com/digdast).
+MIT License. Created by ERTech Lab.
